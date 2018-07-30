@@ -1,0 +1,2 @@
+;    my first assembly program   
+    load  r1, r2 ; kek
