@@ -1,2 +1,8 @@
-;    my first assembly program   
-    load  r1, r2 ; kek
+keek:  .rodata
+
+
+moveq:        .text
+        .global main
+push:   pusheq r1
+        moveq r2, r1 ; fo sho
+        reteq

@@ -7,6 +7,7 @@
       <itemPath>FirstPass.h</itemPath>
       <itemPath>RegexParser.h</itemPath>
       <itemPath>SecondPass.h</itemPath>
+      <itemPath>Structures.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -14,6 +15,7 @@
       <itemPath>FirstPass.cpp</itemPath>
       <itemPath>RegexParser.cpp</itemPath>
       <itemPath>SecondPass.cpp</itemPath>
+      <itemPath>Structures.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
       <itemPath>text.txt</itemPath>
     </logicalFolder>

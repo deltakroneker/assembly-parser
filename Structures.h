@@ -1,49 +1,72 @@
 #ifndef STRUCTURES_H
 #define	STRUCTURES_H
 #include <iostream>
+#include <set>
+#include <map>
+#include <vector>
 using namespace std;
 
-enum Section {
-    text, data, rodata, bss
-};
-
 enum Visibility {
-    local, global
+    LOCAL, GLOBAL
 };
 
 enum SymbolType {
-    section, operation
+    OPERATION, DIRECTIVE, SECTION, EMPTY, UNDEFINED
 };
 
-struct Symbol {
+extern set<string> ConditionNames;
+extern set<string> OperationNames;
+extern set<string> DirectiveNames;
+extern set<string> SectionNames;
+extern set<string> RegisterNames;
+
+struct Instruction {
+    string label;
+    string mnemonic;
+    vector<string> operands;
+};
+
+struct Directive {
+    string label;
+    string name;
+    vector<string> operands;
+};
+
+struct Section {
+    string label;
+    string name;
+};
+
+struct SymbolEntry {
+    
     SymbolType type;
+    Instruction operation;
+    Directive directive;
+    Section section;
+    
     string name;
     int number;
+    Visibility visibility;
     
-    // For section type
-    Section section;
+    // For section & directive type
     unsigned size;
     unsigned address;
-    
-    Symbol(string name, int number, Section section, unsigned size, unsigned address){
-        this->type = section;
-        this->name = name;
-        this->number = number;
-        this->section = section;
-        this->size = size;
-        this->address = address;
-    }
-    
+
     // For operation type
     unsigned value;
-    
-    Symbol(string name, int number, unsigned value){
-        this->type = operation;
-        this->name = name;
-        this->number = number;
-        this->value = value;
-    }  
+
 };
+
+extern map<string, SymbolEntry> symbols;
+extern vector<string> errors;
+
+class Error {
+    string message;
+public:
+    Error(string msg);
+    string getMessage();
+};
+
 
 #endif
 

@@ -15,6 +15,9 @@ public:
     virtual ~RegexParser();
     
     bool isHexadecimalDigit(string string);
+    bool isLabel(string string);
+    bool isConditionedInstruction(string string);
+    bool isProperlyNamedLabel(string string);
         
     void removeWhiteSpacesBeforeAndAfterInstruction(string& string);
     void removeMultipleWhiteSpacesInsideInstruction(string& string);

@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "FirstPass.h"
 #include "SecondPass.h"
+#include "Structures.h"
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -11,8 +13,22 @@ int main(int argc, char** argv) {
     string line;
 
     while (getline(file,line)) {
-        firstPass->processLine(line);
+        try {
+            firstPass->processLine(line);
+        } catch (Error error){
+            errors.push_back(error.getMessage());
+        }
     }
+    
+    if (errors.size() > 0){
+        vector<string>::iterator it = errors.begin();
+        while (it != errors.end()){
+            cout << *it << endl;
+            it++;
+        }
+        return 0;
+    }
+   
     
     /*
     file.clear();
