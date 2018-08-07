@@ -1,8 +1,18 @@
-keek:  .rodata
-
-
-moveq:        .text
-        .global main
-push:   pusheq r1
-        moveq r2, r1 ; fo sho
-        reteq
+.global b
+.text
+addeq r0, r5
+b:
+subgt r4, &d
+mulal r0, 3
+callal a
+a: .long a, 14
+pushal psw
+calleq r3[j]
+.skip 3, 4
+.data
+.word a, 16
+e:
+.long 15
+c: .char 24, 0, 2
+.end
+addal r0, r1

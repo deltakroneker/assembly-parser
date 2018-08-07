@@ -17,6 +17,7 @@
       <itemPath>SecondPass.cpp</itemPath>
       <itemPath>Structures.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
+      <itemPath>sv</itemPath>
       <itemPath>text.txt</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"

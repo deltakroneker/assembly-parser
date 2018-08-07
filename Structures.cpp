@@ -4,17 +4,17 @@ set<string> ConditionNames = {
     "eq", "ne", "gt", "al"
 };
 
-set<string> OperationNames = {
-    "add", "sub", "mul", "div", "cmp", "and", "or", "not", "text", "push", "pop",
+set<string> InstructionNames = {
+    "add", "sub", "mul", "div", "cmp", "and", "or", "not", "test", "push", "pop",
     "call", "iret", "mov", "shl", "shr", "tst", "ret", "jmp"
 };
 
 set<string>  DirectiveNames = {
-    ".global", ".char", ".word", ".long", ".align", ".skip"
+    ".global", ".char", ".word", ".long", ".align", ".skip", ".end"
 };
 
 set<string> SectionNames = {
-    ".text", ".data", ".rodata", ".bss"
+    ".undefined", ".text", ".data", ".rodata", ".bss"
 };
 
 set<string> RegisterNames = {

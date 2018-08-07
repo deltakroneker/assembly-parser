@@ -11,11 +11,15 @@ enum Visibility {
 };
 
 enum SymbolType {
-    OPERATION, DIRECTIVE, SECTION, EMPTY, UNDEFINED
+    SECTION, DIRECTIVE, INSTRUCTION, EMPTY, UNDEFINED
+};
+
+enum ConditionType {
+    EQ, NE, GT, AL
 };
 
 extern set<string> ConditionNames;
-extern set<string> OperationNames;
+extern set<string> InstructionNames;
 extern set<string> DirectiveNames;
 extern set<string> SectionNames;
 extern set<string> RegisterNames;
@@ -38,23 +42,22 @@ struct Section {
 };
 
 struct SymbolEntry {
-    
     SymbolType type;
-    Instruction operation;
-    Directive directive;
-    Section section;
     
     string name;
     int number;
     Visibility visibility;
     
     // For section & directive type
+    Section section;
+    Directive directive;
     unsigned size;
     unsigned address;
 
-    // For operation type
+    // For instruction type
+    ConditionType condition;
+    Instruction operation;
     unsigned value;
-
 };
 
 extern map<string, SymbolEntry> symbols;
@@ -67,6 +70,7 @@ public:
     string getMessage();
 };
 
+class End {};
 
 #endif
 

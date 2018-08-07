@@ -17,6 +17,8 @@ int main(int argc, char** argv) {
             firstPass->processLine(line);
         } catch (Error error){
             errors.push_back(error.getMessage());
+        } catch (End end) {
+            break;
         }
     }
     
@@ -26,7 +28,9 @@ int main(int argc, char** argv) {
             cout << *it << endl;
             it++;
         }
-        return 0;
+        return 1;
+    } else if (firstPass->hasNoEndDirective()){
+        return 1;
     }
    
     
