@@ -24,43 +24,22 @@ extern set<string> DirectiveNames;
 extern set<string> SectionNames;
 extern set<string> RegisterNames;
 
-struct Instruction {
-    string label;
-    string mnemonic;
-    vector<string> operands;
-};
-
-struct Directive {
-    string label;
-    string name;
-    vector<string> operands;
-};
-
-struct Section {
-    string label;
-    string name;
-};
-
 struct SymbolEntry {
-    SymbolType type;
-    
-    string name;
-    int number;
-    Visibility visibility;
-    
-    // For section & directive type
-    Section section;
-    Directive directive;
+    unsigned id;
+    string type;
+    string section;
     unsigned size;
-    unsigned address;
-
-    // For instruction type
-    ConditionType condition;
-    Instruction operation;
     unsigned value;
+    char scope;
+};
+
+struct DataEntry {
+    vector<unsigned char> data;
 };
 
 extern map<string, SymbolEntry> symbols;
+extern map<string, DataEntry> sections;
+
 extern vector<string> errors;
 
 class Error {

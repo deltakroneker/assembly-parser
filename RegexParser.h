@@ -26,6 +26,7 @@ public:
     bool memDir(string string);   // x
     bool memStar(string string);  // *20
     bool symValue(string string); // &x
+    bool pcRel(string string);    // $x
     
     void removeWhiteSpacesBeforeAndAfterInstruction(string& string);
     void removeMultipleWhiteSpacesInsideInstruction(string& string);

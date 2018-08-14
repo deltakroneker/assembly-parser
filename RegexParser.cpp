@@ -98,6 +98,12 @@ bool RegexParser::symValue(string string) {
     return regex_match(string, regex(this->regString));
 }
 
+bool RegexParser::pcRel(string string) {
+    this->regString = "\\$[a-z][a-z0-9_]*";
+    return regex_match(string, regex(this->regString));
+}
+
+
 
 void RegexParser::removeWhiteSpacesBeforeAndAfterInstruction(string& string) {
     this->regString = "^\\s+|\\s+$";

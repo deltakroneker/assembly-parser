@@ -1,12 +1,15 @@
 #include "Structures.h"
 
+map<string,SymbolEntry> symbols;
+map<string, DataEntry> sections;
+
 set<string> ConditionNames = {
     "eq", "ne", "gt", "al"
 };
 
 set<string> InstructionNames = {
     "add", "sub", "mul", "div", "cmp", "and", "or", "not", "test", "push", "pop",
-    "call", "iret", "mov", "shl", "shr", "tst", "ret", "jmp"
+    "call", "iret", "mov", "shl", "shr"
 };
 
 set<string>  DirectiveNames = {
@@ -18,7 +21,7 @@ set<string> SectionNames = {
 };
 
 set<string> RegisterNames = {
-    "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"
+    "r0", "r1", "r2", "r3", "r4", "r5"
 };
 
 vector<string> errors = {};

@@ -1,7 +1,7 @@
 #include "FirstPass.h"
-#include "RegexParser.h"
-#include "Structures.h"
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 using namespace std;
 
 FirstPass::FirstPass() {
@@ -20,18 +20,12 @@ FirstPass::~FirstPass() {
 void FirstPass::processLine(string line) {
     this->line = line;
     vector<string> array;
-    SymbolEntry entry;
-
-    if (line == ""){
+    if (line == "")
         return;
-    } 
-            
-    cout << endl << "~~~~~~~~ " << this->locationCounter << " ~~~~ " << this->currentSection << " ~~~~~~~ " << endl ;
-    
+    cout << endl << std::hex << "~~~~~~~~ " << this->locationCounter << " ~~~~ " << this->currentSection << " ~~~~~~~ " << stoi("1") << endl;
     cleanUpLine(this->line);
     array = splitStringBySpace(this->line);
-    createSymbolEntry(entry, array);
-    
+    createSymbolEntry(array);
 }
     
 void FirstPass::cleanUpLine(string& line) {
@@ -51,46 +45,51 @@ vector<string> FirstPass::splitStringBySpace(string line) {
     return result;
 }
 
-void FirstPass::createSymbolEntry(SymbolEntry& entry, vector<string> array) {
-    
+void FirstPass::createSymbolEntry(vector<string> array) {
     bool hasLabel;
     SymbolType symbolType = determineSymbolType(hasLabel, array);
+    SymbolEntry entry1, entry2;
     
-    if (hasLabel)
+    if (hasLabel) {
         makeSureLabelIsCorrectlyNamed(array);
-
+        entry1.id = this->number++;
+        entry1.type = "symbol";
+        entry1.section = this->currentSection;
+        entry1.size = 0;
+        entry1.value = this->locationCounter;
+        entry1.scope = 'l';
+        
+        symbols.insert(std::make_pair(array[0].substr(0, array[0].size()-1), entry1));
+        cout << "Kreiran simbol LABELA" << endl;
+    }
     
     makeSureOperandsAreCorrect(hasLabel, symbolType, array);
     
     switch (symbolType){
-        case SECTION:
-             cout << "Kreiran simbol SECTION" << endl;
-             entry.type = SECTION;
-             entry.section.label = hasLabel? array[0] : "";
-             entry.section.name = hasLabel? array[1] : array[0];
-             entry.number = this->number++;
-             entry.size;
-             entry.address;
-             break;
-        case DIRECTIVE:
-            cout << "Kreiran simbol DIRECTIVE" << endl;
-            entry.type = DIRECTIVE;
+        case SECTION:            
+            if (this->currentSection != ".undefined"){
+                symbols[this->currentSection].size = this->locationCounter - symbols[this->currentSection].size;
+                this->locationCounter = 0;
+            }
+            
+            this->currentSection = array[(hasLabel?1:0)];
+
+            entry2.id = this->number++;
+            entry2.type = "section";
+            entry2.section = this->currentSection;
+            entry2.size = 0;
+            entry2.value = this->locationCounter;
+            entry2.scope = 'l';
+            
+            symbols.insert(make_pair(array[hasLabel?1:0], entry2));
+            cout << "Kreiran simbol SECTION" << endl;
             break;
-        case INSTRUCTION:
-            
-            
-            cout << "Kreiran simbol OPERATION" << endl;
-            entry.type = INSTRUCTION;
-            
-            
-            break;
-        case EMPTY:
-            cout << "Prazna linija" << endl;
-            entry.type = EMPTY;
-            break;
+
         case UNDEFINED:
-            cout << "Simbol nije prepoznat" << endl;
-            entry.type = UNDEFINED;
+            throw Error("ERROR: Symbol not recognized!");
+            break;
+            
+        default:
             break;
     }
     
@@ -136,6 +135,8 @@ void FirstPass::makeSureLabelIsCorrectlyNamed(vector<string> array) {
             || (InstructionNames.find(array[0].substr(0, array[0].size()-1)) != InstructionNames.end())) {
 
         throw Error("ERROR: Label cannot be same as reserved words (operation names or register names).");
+    } else {
+        // TODO: check if already exist in sym table
     }
 }
 
@@ -156,8 +157,9 @@ void FirstPass::makeSureOperandsAreCorrect(bool hasLabel, SymbolType symbolType,
         case DIRECTIVE:
             dir = array[(hasLabel?1:0)];
             
-            
              if (dir == ".end") {
+                if (this->currentSection != ".undefined" && array[hasLabel?1:0] == ".end")
+                    symbols[this->currentSection].size = this->locationCounter;
                 this->endDirective = true;
                 throw End();
             } else {
@@ -169,7 +171,7 @@ void FirstPass::makeSureOperandsAreCorrect(bool hasLabel, SymbolType symbolType,
                         if (!myRegex->immed(array[(hasLabel?i+2:i+1)]) || (array.size() > (hasLabel?4:3)))
                             throw Error("ERROR: .skip directive parameters are not valid.");
                     } else if (dir == ".align") {
-                        if (!myRegex->immed(array[(hasLabel?i+2:i+1)]) || (array.size() > (hasLabel?6:5)))
+                        if (!myRegex->immed(array[(hasLabel?i+2:i+1)]) || (array.size() != (hasLabel?3:2)) )
                             throw Error("ERROR: .align directive parameters are not valid.");
                     } else if (dir == ".global") {
                         if (!myRegex->memDir(array[(hasLabel?i+2:i+1)]))
@@ -183,15 +185,59 @@ void FirstPass::makeSureOperandsAreCorrect(bool hasLabel, SymbolType symbolType,
             insWithCondition =  array[(hasLabel?1:0)];
             ins = array[(hasLabel?1:0)].substr(0,array[(hasLabel?1:0)].size()-2);
             
+            if (this->currentSection != ".text"){
+                throw Error("ERROR: Instructions must be inside .text section!");
+            }
+            
             if (!myRegex->isConditionedInstruction(insWithCondition)){
                 throw Error("ERROR: Instruction operand is not conforming to conditional naming protocol. Add conditional keyword.");
             }
 
-            if (array.size() > (hasLabel?2:1)){
+            if (array.size() > (hasLabel?3:2)){
                 if (myRegex->immed(array[hasLabel?2:1])) {
                     throw Error("ERROR: Destination operand cannot be a number");
+                } else if (myRegex->symValue(array[hasLabel?2:1])){
+                    throw Error("ERROR: Destination operand cannot be a symbol value");
+                }
+            } else if (array.size() == (hasLabel?3:2)) {
+                 if (myRegex->immed(array[hasLabel?2:1]) && (ins != "call") && (ins != "push")) {
+                    throw Error("ERROR: Destination operand cannot be a number");
+                } else if (myRegex->symValue(array[hasLabel?2:1])){
+                    throw Error("ERROR: Destination operand cannot be a symbol value");
                 }
             }
+            
+            if (array.size() == (hasLabel?4:3)){
+                if ((myRegex->immed(array[(hasLabel?2:1)]) || myRegex->memDir(array[(hasLabel?2:1)]) || myRegex->regInd(array[(hasLabel?2:1)])) && !myRegex->regDir(array[(hasLabel?2:1)])) { 
+                    if ((myRegex->immed(array[(hasLabel?3:2)]) || myRegex->memDir(array[(hasLabel?3:2)]) || myRegex->regInd(array[(hasLabel?3:2)])) && !myRegex->regDir(array[(hasLabel?3:2)])) {
+                        if ((array[(hasLabel?2:1)] != "psw") && (array[(hasLabel?3:2)] != "psw"))
+                            throw Error("ERROR: Both operands cant have data!");
+                    }
+                }
+            }
+            
+            if (array.size() == (hasLabel?4:3)){
+                
+                 if (!myRegex->immed(array[hasLabel?3:2]) && !myRegex->memStar(array[hasLabel?3:2]) &&
+                     !myRegex->regDir(array[hasLabel?3:2]) && !myRegex->memDir(array[hasLabel?3:2]) && 
+                     !myRegex->psw(array[hasLabel?3:2]) && !myRegex->regInd(array[hasLabel?3:2]) && 
+                     !myRegex->symValue(array[hasLabel?3:2]) && !myRegex->pcRel(array[hasLabel?3:2])) {
+                     
+                     throw Error("ERROR: Operands not recognized!");
+                     
+                 } else if (!myRegex->immed(array[hasLabel?2:1]) && !myRegex->memStar(array[hasLabel?2:1]) &&
+                     !myRegex->regDir(array[hasLabel?2:1]) && !myRegex->memDir(array[hasLabel?2:1]) && 
+                     !myRegex->psw(array[hasLabel?2:1]) && !myRegex->regInd(array[hasLabel?2:1]) && 
+                     !myRegex->symValue(array[hasLabel?2:1]) && !myRegex->pcRel(array[hasLabel?2:1])) {
+                     
+                     throw Error("ERROR: Operands not recognized!");
+
+                 }  
+                
+            } else if (array.size() == (hasLabel?3:2)) {
+                
+            }
+                
             break;
             
         case EMPTY:
@@ -206,19 +252,12 @@ void FirstPass::makeSureOperandsAreCorrect(bool hasLabel, SymbolType symbolType,
 void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, vector<string> array) {
     string ins, dir;
     int instructionSizeInBytes = 0;
+    unsigned temp;
     vector<string> parameters = {};
     
     if (this->currentSection == ".undefined"){
         if (symbolType == DIRECTIVE || symbolType == INSTRUCTION){
-            if (array[hasLabel?1:0] != ".global"){
-                throw Error("ERROR: All directives (except .global) and instructions must be inside sections!");
-            }   
-        }
-    } else {
-        if (symbolType == DIRECTIVE){
-            if (array[hasLabel?1:0] == ".global"){
-                throw Error("ERROR: .global instruction must be outside all sections!");
-            }   
+            throw Error("ERROR: All directives and instructions must be inside sections!");
         }
     }
     
@@ -230,8 +269,7 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
 
     switch(symbolType){
         case SECTION:
-            this->currentSection = array[(hasLabel?1:0)];
-            this->locationCounter = 0;
+
             break;
             
         case DIRECTIVE:
@@ -245,7 +283,9 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
             } else if (dir == ".long") {
                 instructionSizeInBytes = 4 * parameters.size();
             } else if (dir == ".align") {
-                
+                temp = this->locationCounter % stoi(array[(hasLabel?2:1)]);
+                if (temp != 0)
+                    instructionSizeInBytes += stoi(array[(hasLabel?2:1)]) - temp;
             } else if (dir == ".skip") {
                 instructionSizeInBytes += stoi(parameters[(hasLabel?1:0)]);
             } else if (dir == ".global") {
@@ -283,7 +323,12 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
                     instructionSizeInBytes = 4;
                 } else if (myRegex->symValue(parameters[0]) && myRegex->regDir(parameters[1])) {
                     instructionSizeInBytes = 4;
-                }        
+                } else if (myRegex->pcRel(parameters[0]) && myRegex->regDir(parameters[1])) {
+                    instructionSizeInBytes = 4;
+                } else if (myRegex->regDir(parameters[0]) && myRegex->pcRel(parameters[1])) {
+                    instructionSizeInBytes = 4;
+                }
+                
             } else if (ins == "push" || ins == "pop") {
                 if (myRegex->regDir(parameters[0])) {
                     instructionSizeInBytes = 2;
@@ -303,10 +348,12 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
                     instructionSizeInBytes = 4;
                 } else if (myRegex->symValue(parameters[0])) {
                     instructionSizeInBytes = 4;
+                } else if (myRegex->pcRel(parameters[0])) {
+                    instructionSizeInBytes = 4;
                 }
             } else if (ins == "iret") {
                 
-            }
+            } 
             
             break;
             
@@ -320,7 +367,27 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
     this->locationCounter += instructionSizeInBytes;
 }
 
-
 bool FirstPass::hasNoEndDirective() {
     return !this->endDirective;
+}
+
+void FirstPass::printOutSymbolTable() {
+    
+    ofstream output;
+    output.open("example.txt");
+    output << "#id\t" << "#name\t\t" << "#type\t\t" << "#section\t" << "#size\t" << "#value\t" << "#scope\t" << endl;
+
+    map<string,SymbolEntry>::iterator it; 
+    for(it =  symbols.begin(); it != symbols.end(); ++it){
+        
+        output << it->second.id << "\t" << it->first << "\t\t" << it->second.type << "\t\t"  << it->second.section << "\t\t0x";
+        output << std::hex << it->second.size << "\t0x" << std::hex << it->second.value << "\t" << it->second.scope << endl;
+    }
+    
+    output.close();
+
+}
+
+int FirstPass::getNumber() {
+    return this->number;
 }

@@ -14,11 +14,11 @@ private:
     string currentSection;
     string line;
     bool endDirective;
-    
     RegexParser* myRegex;
+    
     void cleanUpLine(string& line);
     vector<string> splitStringBySpace(string line);
-    void createSymbolEntry(SymbolEntry& entry, vector<string> array);
+    void createSymbolEntry(vector<string> array);
     SymbolType determineSymbolType(bool& hasLabel, vector<string> array);
     void makeSureLabelIsCorrectlyNamed(vector<string> array);
     void makeSureOperandsAreCorrect(bool hasLabel, SymbolType symbolType, vector<string> array);
@@ -29,6 +29,8 @@ public:
     virtual ~FirstPass();
     void processLine(string line);
     bool hasNoEndDirective();
+    void printOutSymbolTable();
+    int getNumber();
 };
 
 #endif

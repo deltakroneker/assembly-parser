@@ -1,18 +1,30 @@
-.global b
 .text
-addeq r0, r5
-b:
-subgt r4, &d
-mulal r0, 3
-callal a
-a: .long a, 14
-pushal psw
-calleq r3[j]
-.skip 3, 4
+.global a, c
+  .long  3
+    moval r1, 127
+.skip 2
+    moval r5, r2
+c:  calleq c
+    calleq r5
+    calleq 3
+    .skip 4
+    popal r2
+    pushal r1
+    moval $d, r4
+    movgt r1, a
+    movgt r2[c], r1
+
 .data
-.word a, 16
-e:
-.long 15
-c: .char 24, 0, 2
-.end
-addal r0, r1
+    .global b
+    .skip 8
+d:  .long 4
+
+.rodata
+x:  .word 266
+    .skip 4
+    .long 65534
+
+.bss 
+    .char 3, 5
+    .align 4
+    .end
