@@ -17,7 +17,9 @@ public:
     bool isLabel(string string);
     bool isConditionedInstruction(string string);
     bool isProperlyNamedLabel(string string);
-    bool isVariableConstantOrExpression(string string);
+    bool isVariableOrConstant(string string);
+    bool isExpression(string string);
+    bool isSectionName(string string);
         
     bool regDir(string string);   // r1
     bool psw(string string);      // psw

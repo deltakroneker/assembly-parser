@@ -19,7 +19,6 @@
       <itemPath>kek.txt</itemPath>
       <itemPath>main.cpp</itemPath>
       <itemPath>sv</itemPath>
-      <itemPath>text.txt</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"

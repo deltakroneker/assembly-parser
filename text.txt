@@ -1,30 +1,25 @@
-.text
-.global a, c
-  .long  3
-    moval r1, 127
-.skip 2
-    moval r5, r2
-c:  calleq c
-    calleq r5
-    calleq 3
-    .skip 4
-    popal r2
-    pushal r1
-    moval $d, r4
-    movgt r1, a
-    movgt r2[c], r1
+ .text
+        .global a, d
+        addeq r0, r5
+        shlal r1, 9
+b:	subgt r4, d
+	movne r3, r0[p]
+        mulal r0, 3
+t:      moval *20, r0
+        callal $a
 
+a:      .long a-t, b-14
+        .global b
+        moval e, r4
+        calleq r3[t]
 .data
-    .global b
-    .skip 8
-d:  .long 4
-
+        .word a, 16, a-b
+e:
+	.long 99
 .rodata
-x:  .word 266
-    .skip 4
-    .long 65534
+p:      .char 24, 2, 25
+        .word 202
+        .long .data
 
-.bss 
-    .char 3, 5
-    .align 4
-    .end
+.end
+

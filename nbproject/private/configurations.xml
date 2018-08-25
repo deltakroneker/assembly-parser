@@ -29,8 +29,11 @@
         <runcommandpicklist>
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" text.txt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" text.txt izlaz.txt 800</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" text.txt izlaz.txt 0</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" text.txt izlaz.txt 128</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}" text.txt</runcommand>
+        <runcommand>"${OUTPUT_PATH}" text.txt izlaz.txt 128</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <console-type>2</console-type>

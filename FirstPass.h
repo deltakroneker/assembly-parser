@@ -10,9 +10,11 @@ class FirstPass {
     
 private:
     int number;
+    int startAddress;
     unsigned locationCounter;
     string currentSection;
     string line;
+    string outputFile;
     bool endDirective;
     RegexParser* myRegex;
     
@@ -25,7 +27,7 @@ private:
     void calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, vector<string> array);
 
 public:
-    FirstPass();
+    FirstPass(string output, string start);
     virtual ~FirstPass();
     void processLine(string line);
     bool hasNoEndDirective();

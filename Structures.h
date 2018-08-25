@@ -37,8 +37,19 @@ struct DataEntry {
     vector<unsigned char> data;
 };
 
+struct RelocationEntry {
+    unsigned value;
+    string type;
+    unsigned id;
+};
+
+struct RelocationList {
+    vector<RelocationEntry> relData;
+};
+
 extern map<string, SymbolEntry> symbols;
 extern map<string, DataEntry> sections;
+extern map<string, RelocationList> relocations;
 
 extern vector<string> errors;
 

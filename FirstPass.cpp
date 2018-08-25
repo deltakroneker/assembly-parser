@@ -4,10 +4,12 @@
 #include <iomanip>
 using namespace std;
 
-FirstPass::FirstPass() {
+FirstPass::FirstPass(string output, string start) {
     myRegex =  new RegexParser();
     number = 0;
-    locationCounter = 0;
+    locationCounter = stoi(start);
+    startAddress = stoi(start);
+    outputFile = output;
     line = "";
     currentSection = ".undefined";
     endDirective = false;
@@ -68,8 +70,7 @@ void FirstPass::createSymbolEntry(vector<string> array) {
     switch (symbolType){
         case SECTION:            
             if (this->currentSection != ".undefined"){
-                symbols[this->currentSection].size = this->locationCounter - symbols[this->currentSection].size;
-                this->locationCounter = 0;
+                symbols[this->currentSection].size = this->locationCounter - startAddress - symbols[this->currentSection].size;
             }
             
             this->currentSection = array[(hasLabel?1:0)];
@@ -83,6 +84,7 @@ void FirstPass::createSymbolEntry(vector<string> array) {
             
             symbols.insert(make_pair(array[hasLabel?1:0], entry2));
             cout << "Kreiran simbol SECTION" << endl;
+            this->locationCounter = startAddress;
             break;
 
         case UNDEFINED:
@@ -165,7 +167,7 @@ void FirstPass::makeSureOperandsAreCorrect(bool hasLabel, SymbolType symbolType,
             } else {
                 for (i = 0; i < (hasLabel?array.size()-2:array.size()-1) ; i++) {
                     if (dir == ".char" || dir == ".word" || dir == ".long") {
-                        if (!myRegex->isVariableConstantOrExpression(array[(hasLabel?i+2:i+1)]))
+                        if (!myRegex->isVariableOrConstant(array[(hasLabel?i+2:i+1)]) && !myRegex->isExpression(array[(hasLabel?i+2:i+1)]) && !myRegex->isSectionName(array[(hasLabel?i+2:i+1)]))
                             throw Error("ERROR: .char .word or .long directive parameters are not valid.");
                     } else if (dir == ".skip") {
                         if (!myRegex->immed(array[(hasLabel?i+2:i+1)]) || (array.size() > (hasLabel?4:3)))
@@ -333,7 +335,7 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
                 if (myRegex->regDir(parameters[0])) {
                     instructionSizeInBytes = 2;
                 }
-            } else if (ins == "call") {
+            } else if (ins == "call" || ins == "jmp") {
                 if (myRegex->regDir(parameters[0])) {
                     instructionSizeInBytes = 2;
                 } else if (myRegex->regInd(parameters[0])) {
@@ -352,8 +354,10 @@ void FirstPass::calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, v
                     instructionSizeInBytes = 4;
                 }
             } else if (ins == "iret") {
-                
-            } 
+                instructionSizeInBytes = 2;
+            } else if (ins == "ret") {
+                instructionSizeInBytes = 2;
+            }
             
             break;
             
@@ -374,7 +378,7 @@ bool FirstPass::hasNoEndDirective() {
 void FirstPass::printOutSymbolTable() {
     
     ofstream output;
-    output.open("example.txt");
+    output.open(outputFile);
     output << "#id\t" << "#name\t\t" << "#type\t\t" << "#section\t" << "#size\t" << "#value\t" << "#scope\t" << endl;
 
     map<string,SymbolEntry>::iterator it; 

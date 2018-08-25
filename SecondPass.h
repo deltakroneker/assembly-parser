@@ -11,8 +11,10 @@ class SecondPass {
 private:
     unsigned locationCounter;
     int number;
+    int startAddress;
     string currentSection;
     string line;
+    string outputFile;
     RegexParser* myRegex;
     
     void cleanUpLine(string& line);
@@ -26,14 +28,15 @@ private:
     bool globalizeSymbol(string string);
     void calculateOffsetsAndSizes(bool hasLabel, SymbolType symbolType, vector<string> array);
     void createDirectiveDataEntry(bool hasLabel, vector<string> array);
+    void createRelocationEntry(int size, int position, string symbol, string type, unsigned id);
+    void handleJumpIns(bool hasLabel, vector<string> array);
 
 public:
-    SecondPass(int lastNumber);
+    SecondPass(string output, string start, int lastNumber);
     virtual ~SecondPass();
     void processLine(string line);
     void printOutSections();
-
-
+    void printOutRelocations();
 };
 
 #endif

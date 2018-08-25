@@ -8,13 +8,15 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+    
+    cout << argv[1] << " " << argv[2] << " " << argv[3] << endl;
 
     FirstPass* firstPass;
     SecondPass* secondPass;
     ifstream file(argv[1]);
     string line;
 
-    firstPass = new FirstPass();
+    firstPass = new FirstPass(argv[2], argv[3]);
     while (getline(file,line)) {
         try {
             firstPass->processLine(line);
@@ -41,7 +43,7 @@ int main(int argc, char** argv) {
     file.clear();
     file.seekg(0,file.beg);
     
-    secondPass = new SecondPass(firstPass->getNumber());
+    secondPass = new SecondPass(argv[2], argv[3], firstPass->getNumber());
     while (getline(file,line)) {
         try {
             secondPass->processLine(line);
@@ -64,6 +66,7 @@ int main(int argc, char** argv) {
     
     firstPass->printOutSymbolTable();
     secondPass->printOutSections();
-    
+    secondPass->printOutRelocations();
+        
     return 0;
 }

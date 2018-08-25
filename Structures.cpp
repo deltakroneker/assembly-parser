@@ -1,7 +1,8 @@
 #include "Structures.h"
 
-map<string,SymbolEntry> symbols;
+map<string, SymbolEntry> symbols;
 map<string, DataEntry> sections;
+map<string, RelocationList> relocations;
 
 set<string> ConditionNames = {
     "eq", "ne", "gt", "al"
@@ -9,7 +10,7 @@ set<string> ConditionNames = {
 
 set<string> InstructionNames = {
     "add", "sub", "mul", "div", "cmp", "and", "or", "not", "test", "push", "pop",
-    "call", "iret", "mov", "shl", "shr"
+    "call", "iret", "mov", "shl", "shr", "ret", "jmp"
 };
 
 set<string>  DirectiveNames = {

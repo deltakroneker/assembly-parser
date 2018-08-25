@@ -55,11 +55,20 @@ bool RegexParser::isProperlyNamedLabel(string string) {
     
 }
 
-bool RegexParser::isVariableConstantOrExpression(string string) {
+bool RegexParser::isVariableOrConstant(string string) {
     this->regString = "([a-z][a-z0-9_]*)|([0-9]{1,5})";
     return regex_match(string, regex(this->regString));
 }
 
+bool RegexParser::isExpression(string string) {
+    this->regString = "(([a-z][a-z0-9_]*)[+-]([a-z][a-z0-9_]*))|(([a-z][a-z0-9_]*)[+-]([0-9]{1,5}))|(([0-9]{1,5})[+-]([a-z][a-z0-9_]*))|(([0-9]{1,5})[+-]([0-9]{1,5}))";
+    return regex_match(string, regex(this->regString));
+}
+
+bool RegexParser::isSectionName(string string) {
+    this->regString = "\\.text|\\.data|\\.rodata|\\.bss";
+    return regex_match(string, regex(this->regString));
+}
 
 
 bool RegexParser::regDir(string string){
@@ -79,12 +88,28 @@ bool RegexParser::immed(string string){
 
 bool RegexParser::regInd(string string){
     this->regString = "r[0-7]\\[[0-9]{1,5}\\]|r[0-7]\\[[a-z][a-z0-9_]*\\]";
-    return regex_match(string, regex(this->regString));
+    bool p1 = regex_match(string, regex(this->regString));
+    
+    this->regString = "r[0-7]\\[(([0-9]{1,5})[+-]([0-9]{1,5}))\\]|r[0-7]\\[(([a-z][a-z0-9_]*)[+-]([a-z][a-z0-9_]*))\\]";
+    bool p2 = regex_match(string, regex(this->regString));
+    
+    this->regString = "r[0-7]\\[(([0-9]{1,5})[+-]([a-z][a-z0-9_]*))\\]|r[0-7]\\[(([a-z][a-z0-9_]*)[+-]([0-9]{1,5}))\\]";
+    bool p3 = regex_match(string, regex(this->regString));
+    
+    return p1 || p2 || p3;
 }
 
 bool RegexParser::memDir(string string){
     this->regString = "[a-z][a-z0-9_]*";
-    return regex_match(string, regex(this->regString));
+    bool p1 = regex_match(string, regex(this->regString));
+    
+    this->regString = "([a-z][a-z0-9_]*)[+-]([a-z][a-z0-9_]*)";
+    bool p2 = regex_match(string, regex(this->regString));
+    
+    this->regString = "(([a-z][a-z0-9_]*)[+-]([0-9]{1,5}))|(([0-9]{1,5})[+-]([a-z][a-z0-9_]*))";
+    bool p3 = regex_match(string, regex(this->regString));
+    
+    return p1 || p2 || p3;
 }
 
 bool RegexParser::memStar(string string) {
