@@ -1,0 +1,36 @@
+.text
+        .global a, b, c
+a:      addal r1, r2
+        subeq r1, 4
+        mulne r2, a
+        divgt a, r3
+        cmpal r1[2], r2
+        andeq r4[a], r3
+        orne  $a, r1
+        notgt r2, $a
+b:      testal r1, *4
+        pusheq r2
+        popne r3
+        callgt b
+        iretal
+        moveq r4, &a
+        shlne r3, b+1
+        shrgt r4, a+b
+c:      retal
+        jmpeq a
+        .char 100
+        .word 200, a, b
+        .long a+20, b-40
+        .skip 5
+        .align 8
+.bss    
+        .global x, y, z 
+.data
+        .word 255, a, b+3
+        .long b+c
+.rodata
+        .skip 3
+        .align 8
+.end
+
+

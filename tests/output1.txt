@@ -1,0 +1,35 @@
+#id	#name		#type		#section	#size	#value	#scope	
+0	.data		section		.data		0x16	0x80	l
+3	.text		section		.text		0x84	0x96	l
+2	a		symbol		.data		0x0	0x8a	l
+1	x		symbol		.data		0x0	0x80	g
+4	y		symbol		.text		0x0	0x82	g
+
+#text
+4B F5 8D F5 
+
+#data
+02 00 03 00 80 00 82 00 00 00 00 04 00 00 80 00 
+00 00 88 00 00 00 
+
+#rodata
+/
+
+
+#bss
+/
+
+#text_relocation
+/
+
+#data_relocation
+4	 R_386_16 	0
+6	 R_386_16 	3
+e	 R_386_32 	0
+12	 R_386_32 	0
+
+#rodata_relocation
+/
+
+#bss_relocation
+/

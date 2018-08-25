@@ -1,0 +1,13 @@
+.data
+        .global x
+x:      .word 2, 3, x, y
+        .skip 1
+        .align 2
+a:      .long 1024
+        .long x, x+8
+.text
+        .global y
+        moval r2, r3
+y:      moval r4, r5
+
+.end
